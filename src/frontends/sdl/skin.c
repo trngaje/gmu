@@ -303,6 +303,7 @@ static void skin_update_widget(Skin *skin, GmuWidget *gw, SDL_Surface *display, 
 	drect.x = srect.x;
 	drect.y = srect.y;
 	SDL_BlitSurface(buffer, &srect, display, &drect);
+	SDL_Flip(display);
 	SDL_UpdateRects(display, 1, &drect);
 }
 
