@@ -30,6 +30,10 @@
 #include "util.h"
 #include "consts.h"
 
+#include <iconv.h>
+ 
+int euckr2utf8(char *source, char *dest, int dest_size);
+
 void strtoupper(char *target, const char *src, size_t len)
 {
 	size_t i, srclen = strlen(src);
@@ -308,7 +312,7 @@ int strncpy_charset_conv(
 				res = 1;
 			} else {
 				if (!(res = charset_utf16_to_utf8(target, target_size, source, source_size, BOM)))
-					res = charset_iso8859_1_to_utf8(target, source, target_size);
+					res = euckr2utf8(source, target, target_size);; //charset_iso8859_1_to_utf8(target, source, target_size);
 			}
 			break;
 	}

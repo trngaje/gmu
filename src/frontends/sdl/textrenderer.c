@@ -19,6 +19,75 @@
 #include "SDL_image.h"
 #include "charset.h"
 
+#include "skin.h"
+#if 1
+
+#include "bitmap.h"
+#include "bitmapfont_11x11.h"
+
+extern Skin                skin;
+
+unsigned short utf8_to_unicode(unsigned char c1, unsigned char c2, unsigned char c3)
+{
+	unsigned short c=0;
+	
+	if ((c1 & 0xf0) == 0xe0)
+		if ((c2 & 0xc0) == 0x80)
+			if ((c3 & 0xc0) == 0x80)
+			{
+				c = ((c1 & 0xf) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
+				return c;
+			}
+			
+	return 0;
+}
+
+void draw_char_retroarch_eng(SDL_Surface* surface, unsigned char symbol, int x, int y, unsigned long color) 
+{
+	unsigned long *dst;
+
+	int l, u;
+	
+	for (l = 0; l < FONT_HEIGHT; l++)
+	{
+		dst=(unsigned long*)surface->pixels + (surface->pitch / 4)*(y+l) + x;
+		for (u = 0; u < FONT_WIDTH; u++)
+		{
+			unsigned char rem = 1 << (((u) + (l) * FONT_WIDTH) & 7);
+			unsigned char offset  = ((u) + (l) * FONT_WIDTH) >> 3;
+			if ((bitmap_bin[FONT_OFFSET(symbol) + offset] & rem) > 0)	{								
+				*dst = color;
+			}
+			dst++;
+
+		}
+	}
+}
+
+void draw_char_kor(SDL_Surface* surface, unsigned short symbol, int x, int y, unsigned long color) 
+{
+	unsigned long *dst;
+
+	int l, u;
+	
+	for (l = 0; l < FONT_KOR_HEIGHT; l++)
+	{
+		dst=(unsigned long*)surface->pixels + (surface->pitch / 4)*(y+l) + x;
+		for (u = 0; u < FONT_KOR_WIDTH; u++)
+		{
+			unsigned char rem = 1 << (((u) + (l) * FONT_KOR_WIDTH) & 7);
+			unsigned char offset  = ((u) + (l) * FONT_KOR_WIDTH) >> 3;
+			if ((bitmap_kor_bin[FONT_KOR_OFFSET(symbol-0xac00) + offset] & rem) > 0)	{								
+				*dst = color;
+			}
+			dst++;
+
+		}
+	}
+}
+#endif
+
+
 int textrenderer_init(TextRenderer *tr, char *chars_file, int chwidth, int chheight)
 {
 	int          result = 0;
@@ -49,19 +118,29 @@ void textrenderer_draw_char(const TextRenderer *tr, UCodePoint ch, SDL_Surface *
 	const int n = (ch - '!') * tr->chwidth;
 	SDL_Rect  srect, drect;
 
-	if (n >= 0) {
-		srect.x = 1 + n;
-		srect.y = 1;
-		srect.w = tr->chwidth;
-		srect.h = tr->chheight;
-
-		drect.x = target_x;
-		drect.y = target_y;
-		drect.w = 1;
-		drect.h = 1;
-
-		SDL_BlitSurface(tr->chars, &srect, target, &drect);
+	if (ch >= 0xac00 && ch <= 0xd7a3) {
+		if (tr == &skin.font2)
+			draw_char_kor(target, ch, target_x, target_y, 0x3e76ff);
+		else
+			draw_char_kor(target, ch, target_x, target_y, 0xffffff);
+		
 	}
+	else {
+		if (n >= 0) {
+			srect.x = 1 + n;
+			srect.y = 1;
+			srect.w = tr->chwidth;
+			srect.h = tr->chheight;
+
+			drect.x = target_x;
+			drect.y = target_y;
+			drect.w = 1;
+			drect.h = 1;
+
+			SDL_BlitSurface(tr->chars, &srect, target, &drect);
+		}
+	}
+	
 }
 
 void textrenderer_draw_string_codepoints(const TextRenderer *tr, const UCodePoint *str, int str_len, SDL_Surface *target, int target_x, int target_y)
@@ -127,10 +206,17 @@ void textrenderer_draw_string_with_highlight(const TextRenderer *tr1, const Text
 
 	if (ustr && charset_utf8_to_codepoints(ustr, str, utf8_chars)) {
 		for (i = 0, j = 0; i < utf8_chars && j - str_offset < max_length; i++, j++) {
+#if 1
+			if (ustr[i] == '*' && i+1 < utf8_chars && ustr[i+1] == '*') {
+				highlight = !highlight;
+				i+=2;
+			}
+#else
 			if (str[i] == '*' && i+1 < utf8_chars && str[i+1] == '*') {
 				highlight = !highlight;
 				i+=2;
 			}
+#endif
 			if (j >= str_offset && (j != str_offset || str_offset == 0)) {
 				if (!highlight)
 					textrenderer_draw_char(tr1, ustr[i], target, 

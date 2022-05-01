@@ -1149,7 +1149,7 @@ static void run_player(char *skin_name, char *decoders_str)
 		}
 
 		if (update != UPDATE_NONE && update_display && !display_inactive) {
-			char buf[128];
+			char buf[256];
 
 			if ((update & UPDATE_DISPLAY) && frame_skip_counter == 0) {
 				frame_skip_counter = FRAME_SKIP;
@@ -1167,7 +1167,7 @@ static void run_player(char *skin_name, char *decoders_str)
 
 			if (update & UPDATE_FOOTER) {
 				skin_draw_footer_bg(&skin, buffer);
-				key_action_mapping_generate_help_string(kam, buf, 127, modifier, view);
+				key_action_mapping_generate_help_string(kam, buf, sizeof(buf)-1, modifier, view);
 				skin_draw_footer_text(&skin, buf, buffer);
 				skin_update_footer(&skin, display, buffer);
 			}

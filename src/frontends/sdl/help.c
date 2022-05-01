@@ -18,6 +18,66 @@
 #include "help.h"
 #include "core.h"
 
+#if 1
+static const char *text_help = 
+"Gmu 뮤직 플레이어를 사용해 주셔서 감사합니다!\n\n"
+"이것은 Gmu의 가장 중요한 기능에 대한 짧은 설명서 입니다.\n\n"
+"Gmu 는 장치의 버튼에 의해 작동합니다.\n"
+"각각의 버튼은 두가지 기능을 갖을 수 있습니다.\n"
+"첫 번째 기능은 버튼을 그냥 눌러서 동작하고,\n"
+"두 번째 기능은 모드키와 같이 눌러서 동작합니다.\n"
+"모드 키는 **%s ** 버튼 입니다.\n"
+"이제 부터 그 키를 \"Mod\" 라고 다음 문장에서는 사용하겠습니다.\n"
+"위 아래로 스크롤 하기 위해서는 **%s ** 와\n"
+"**%s **버튼을 사용합니다.\n\n"
+"Gmu 는 다양한 정보를 표시하기 위해 여러 화면을 가지고 있습니다.\n"
+"주요 화면은 파일 탐색기와\n"
+"플레이리스트 탐색기와 트랙 정보화면이 있습니다.\n"
+"**%s** 키를 눌러 이 화면을 전환할 수 있습니다.\n\n"
+"화면과 상관 없는 전체 기능이 있습니다.\n"
+"그리고 특정 화면에서만 동작하는 기능이 있습니다.\n\n"
+"**중요한 전체 기능은**\n\n"
+"재생/앞으로 넘김.......: **%s **\n"
+"뒤로 넘김...........: **%s **\n"
+"앞으로 탐색..........: **%s **\n"
+"뒤로 탐색...........: **%s **\n"
+"일시정지............: **%s **\n"
+"정지..............: **%s **\n"
+"볼륨 업............: **%s **\n"
+"볼륨 다운...........: **%s **\n"
+"Gmu 종료..........: **%s **\n"
+"프로그램 정보.........: **%s **\n"
+"버튼 잠금+화면 끄기.....: **%s **\n"
+"버튼 잠금해제+화면 켜기...: **%s **\n"
+"\n"
+"**파일 탐색 기능**\n\n"
+"파일 추가/디렉토리 변경.........: **%s **\n"
+"디렉토리 추가...............: **%s **\n"
+"단일 파일 재생..............: **%s **\n"
+"디렉토리로부터 새 플레이리스트 만들기..: **%s **\n"
+"\n"
+"**플레이 리스트 탐색기 기능**\n\n"
+"선택한 파일 재생.......: **%s **\n"
+"선택한 파일 큐표시......: **%s **\n"
+"선택한 파일 삭제.......: **%s **\n"
+"플레이 리스트 초기화.....: **%s **\n"
+"재생 모드 변경........: **%s **\n"
+"플레이 리스트 저장/불러오기.: **%s **\n"
+"\n"
+"가장 중요한 기능이 있습니다.\n"
+"그다지 사용되지 않는 기능도 있습니다.\n"
+"이러한 기능들은 Gmu 폴더 안에 있는 README.txt에서 설명하고 있습니다.\n"
+"나중에 도움말 화면을 열고 싶을 때는\n"
+"** %s** 버튼을 눌러주세요.\n\n"
+"**시작하기**\n\n"
+"가장 처음 원하는 것은 특정 트랙을 플레이 리스에 추가 하는 것이라고 생각됩니다.\n"
+"이것은 매우 간단합니다. 처음 파일 탐색기 화면에서 **%s **을 사용합니다. \n"
+"위에 설명한 버튼을 사용하여 시스템 트리 안에서 단일 파일을 추가하거나 전체 디렉토리를 \n"
+"플레이리스트에 추가합니다.\n"
+"적어도 한개의 파일이 플레이 리스트에 있으면\n"
+"** %s** 버틀을 눌러 재생할 수 있습니다.\n\n"
+"Gmu 뮤질 플레이어로 유익한 시간 보내시기 바랍니다.\n";
+#else
 static const char *text_help = 
 "Welcome to the Gmu Music Player!\n\n"
 "This is a short introduction to the\n"
@@ -87,6 +147,7 @@ static const char *text_help =
 "Have fun with the Gmu Music Player.\n"
 "/wej"
 ;
+#endif
 
 void help_init(TextBrowser *tb_help, Skin *skin, KeyActionMapping *kam)
 {
@@ -124,7 +185,11 @@ void help_init(TextBrowser *tb_help, Skin *skin, KeyActionMapping *kam)
 	                    key_action_mapping_get_full_button_name(kam, GLOBAL_NEXT));
 
 	text_browser_init(tb_help, skin);
+#if 1
+	text_browser_set_text(tb_help, txt, "Gmu 도움말");
+#else
 	text_browser_set_text(tb_help, txt, "Gmu Help");
+#endif
 }
 
 int help_process_action(TextBrowser *tb_help, View *view, View old_view, int user_key_action)

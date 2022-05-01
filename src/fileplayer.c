@@ -36,6 +36,10 @@
 
 #define BUF_SIZE 65536
 
+#include <iconv.h>
+ 
+int euckr2utf8(char *source, char *dest, int dest_size);
+
 static char            lyrics_file_pattern[256];
 static long            seek_second;
 
@@ -349,7 +353,8 @@ static void *decode_audio_thread(void *udata)
 						if (charset_is_valid_utf8_string(filename))
 							strncpy(ti->file_name, filename, SIZE_FILE_NAME-1);
 						else
-							charset_iso8859_1_to_utf8(ti->file_name, filename, SIZE_FILE_NAME-1);
+							euckr2utf8(filename, ti->file_name, SIZE_FILE_NAME-1);
+							//charset_iso8859_1_to_utf8(ti->file_name, filename, SIZE_FILE_NAME-1);
 
 						/* Assume 44.1 kHz stereo as default */
 						ti->samplerate = 44100;

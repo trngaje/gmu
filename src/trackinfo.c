@@ -21,6 +21,10 @@
 #include "debug.h"
 #include <pthread.h>
 
+#include <iconv.h>
+ 
+extern int euckr2utf8(char *source, char *dest, int dest_size);
+
 void trackinfo_set(
 	TrackInfo  *ti,
 	const char *artist,
@@ -284,7 +288,8 @@ int trackinfo_load_lyrics_from_file(TrackInfo *ti, const char *file_name)
 			wdprintf(V_DEBUG, "trackinfo", "Lyrics text looks like it is UTF-8 encoded.\n");
 		} else { /* Try to convert ISO-8859-1 to UTF-8. */
 			wdprintf(V_DEBUG, "trackinfo", "Lyrics text looks like it is ISO-8859-1 encoded.\n");
-			if (!charset_iso8859_1_to_utf8(ti->lyrics, buffer, SIZE_LYRICS-1)) {
+			//if (!charset_iso8859_1_to_utf8(ti->lyrics, buffer, SIZE_LYRICS-1)) {
+			if (!euckr2utf8(buffer, ti->lyrics, SIZE_LYRICS-1)) {
 				wdprintf(V_WARNING, "trackinfo", "ERROR: Failed to convert lyrics text to UTF-8.\n");
 				snprintf(ti->lyrics, SIZE_LYRICS-1, "[Text file file with unknown encoding found.]");
 			}
