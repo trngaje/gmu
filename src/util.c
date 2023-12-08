@@ -30,6 +30,27 @@
 #include "util.h"
 #include "consts.h"
 
+#if 1 /* for hangul */
+#include <iconv.h>
+ 
+static int euckr2utf8(char *source, char *dest, int dest_size)
+{
+    iconv_t it;
+    char *pout;
+    size_t in_size, out_size;
+ 
+    it = iconv_open("UTF-8", "EUC-KR");
+    in_size = strlen(source);
+    out_size = dest_size;
+    pout = dest;
+    if (iconv(it, &source, &in_size, &pout, &out_size) < 0)
+        return(-1);
+    iconv_close(it);
+    return(pout - dest);
+    /* return(out_size); */
+}
+
+#endif
 void strtoupper(char *target, const char *src, size_t len)
 {
 	size_t i, srclen = strlen(src);
@@ -308,7 +329,11 @@ int strncpy_charset_conv(
 				res = 1;
 			} else {
 				if (!(res = charset_utf16_to_utf8(target, target_size, source, source_size, BOM)))
+#if 1
+					res = euckr2utf8(source, target, target_size);
+#else
 					res = charset_iso8859_1_to_utf8(target, source, target_size);
+#endif
 			}
 			break;
 	}

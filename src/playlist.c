@@ -35,6 +35,11 @@
 
 static int recursive_directory_add_in_progress = 0;
 
+#if 1 /* for hangul */
+#include <iconv.h>
+ 
+extern int euckr2utf8(char *source, char *dest, int dest_size);
+#endif
 void playlist_init(Playlist *pl)
 {
 	pl->length       = 0;
@@ -173,7 +178,11 @@ int playlist_add_file(Playlist *pl, const char *filename_with_path, Entry *entry
 					strncpy(buf, filename, 255);
 					buf[255] = '\0';
 				} else {
+#if 1
+					if (!euckr2utf8(filename, buf, 255)) {
+#else
 					if (!charset_iso8859_1_to_utf8(buf, filename, 255)) {
+#endif
 						wdprintf(V_WARNING, "playlist", "ERROR: Failed to convert filename text to UTF-8.\n");
 						snprintf(buf, 255, "[Filename with unsupported encoding]");
 					}

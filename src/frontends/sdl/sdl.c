@@ -123,7 +123,7 @@ static SDL_Surface  *display = NULL;
 static SDL_Surface *init_sdl(int with_joystick, int width, int height, int fullscreen)
 {
 	SDL_Surface         *display = NULL;
-//	const SDL_VideoInfo *video_info;
+
 	int                 init_okay = 0;
 
 	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
@@ -138,14 +138,31 @@ static SDL_Surface *init_sdl(int with_joystick, int width, int height, int fulls
 	}
 
 	if (init_okay) {
-//		video_info = SDL_GetVideoInfo();
-		/*if (video_info) {
+#if 1
+/* SDL2.0 */
+		SDL_DisplayMode DM;
+		SDL_GetCurrentDisplayMode(0, &DM);
+
+		if (1) {
+			screen_max_width  = DM.w;
+			screen_max_height = DM.h;
+			screen_max_depth  = 32; 
+			wdprintf(V_INFO, "sdl_frontend", "Available screen real estate: %d x %d pixels @ %d bpp\n",
+					screen_max_width, screen_max_height, screen_max_depth);			
+		} else
+#else
+/* SDL1.2 */
+		const SDL_VideoInfo *video_info;	
+		video_info = SDL_GetVideoInfo();
+		if (video_info) {
 			screen_max_width  = video_info->current_w;
 			screen_max_height = video_info->current_h;
 			screen_max_depth  = video_info->vfmt->BitsPerPixel;
 			wdprintf(V_INFO, "sdl_frontend", "Available screen real estate: %d x %d pixels @ %d bpp\n",
 					 screen_max_width, screen_max_height, screen_max_depth);
-		} else*/ {
+		} else
+#endif 
+		{
 			screen_max_width  = 1280;
 			screen_max_height = 720;
 			screen_max_depth  = 32;

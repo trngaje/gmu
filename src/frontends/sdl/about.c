@@ -18,6 +18,20 @@
 #include "about.h"
 #include "core.h"
 
+#if 1
+static const char *text_about_gmu = 
+	"이 프로그램에서 사용하는 라이브러리는:\n\n"
+	"- SDL, SDL_Image, SDL_gfx (옵션)\n\n"
+	"디코더 플러그인이 디코딩을 위한 추가 라이브러리를 사용합니다.\n"
+	"Johannes Heimansberg (**wej.k.vu**)이 프로그램 했습니다.\n\n"
+	"태릉|아재 (trngaje)에 의해 한글화 되었습니다.\n\n"
+	"보다 자세한 내용과 설정과 관련된 힌트를 얻으려면 README.md를\n"
+	"보기 바랍니다. 내장된 도움말 화면도 정보를 얻을 수 있습니다.\n"
+	"프로젝트 웹사이트:\n"
+	"**http://wej.k.vu/projects/gmu/**\n\n"
+	"Gmu 는 프리소프트웨어입니다: GPL2. 라이센스에 따라\n"
+	"재배포 수정을 할 수 있습니다.\n";
+#else
 static const char *text_about_gmu = 
 	"Libraries used by this program:\n\n"
 	"- SDL, SDL_Image, SDL_gfx (optional)\n\n"
@@ -36,6 +50,7 @@ static const char *text_about_gmu =
 	"redistribute it and/or modify it under\n"
 	"the terms of the GNU General Public\n"
 	"License version 2.\n";
+#endif
 
 int about_process_action(TextBrowser *tb_about, View *view, View old_view, int user_key_action)
 {
@@ -78,6 +93,31 @@ void about_init(TextBrowser *tb_about, Skin *skin, const char *decoders)
 	SDL_VERSION(&compiled);
 	SDL_GetVersion(&linked);
 
+#if 1
+	snprintf(
+		txt, 1023, "이 것은 Gmu 뮤직플레이어입니다.\n\n"
+		"버젼.........: **"VERSION_NUMBER"**\n"
+		"빌드된 날짜.....: "__DATE__" "__TIME__"\n"
+		"SDL version.....: %u.%u.%u (runtime: %u.%u.%u)\n"
+		"인식된 장치.....: %s\n"
+		"설정파일 경로.... %s\n"
+		"Config file.....: %s\n"
+		"Command line....: %s\n\n"
+		"Gmu 는 디코더 플러그인에 따라 다양한 파일 포맷을 지원합니다.\n"
+		"%s 디코더:\n\n%s\n"
+		"%s",
+		compiled.major, compiled.minor, compiled.patch,
+		linked.major, linked.minor, linked.patch,
+		gmu_core_get_device_model_name(),
+		gmu_core_get_config_dir(),
+		gmu_core_get_config_file_path(),
+		gmu_core_get_command_line(),
+		STATIC ? "내장됨" : "로드됨",
+		decoders,
+		text_about_gmu
+	);
+
+#else
 	snprintf(
 		txt, 1023, "This is the Gmu music player.\n\n"
 		"Version.........: **"VERSION_NUMBER"**\n"
@@ -101,7 +141,13 @@ void about_init(TextBrowser *tb_about, Skin *skin, const char *decoders)
 		decoders,
 		text_about_gmu
 	);
+#endif
 
 	text_browser_init(tb_about, skin);
+	
+#if 1
+	text_browser_set_text(tb_about, txt, "Gmu 에 대한 설명");
+#else
 	text_browser_set_text(tb_about, txt, "About Gmu");
+#endif
 }

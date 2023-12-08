@@ -23,6 +23,26 @@
 #include "id3.h"
 #define ID3V2_MAX_SIZE 262144
 
+#if 1 /* for hangul */
+#include <iconv.h>
+ 
+int euckr2utf8(char *source, char *dest, int dest_size)
+{
+    iconv_t it;
+    char *pout;
+    size_t in_size, out_size;
+ 
+    it = iconv_open("UTF-8", "EUC-KR");
+    in_size = strlen(source);
+    out_size = dest_size;
+    pout = dest;
+    if (iconv(it, &source, &in_size, &pout, &out_size) < 0)
+        return(-1);
+    iconv_close(it);
+    return(pout - dest);
+    /* return(out_size); */
+}
+#endif
 static int convert_copy_strip(char *target, const char *source, size_t size)
 {
 	int    res = 1;
@@ -30,7 +50,11 @@ static int convert_copy_strip(char *target, const char *source, size_t size)
 	if (charset_is_valid_utf8_string(source))
 		strncpy(target, source, size-1);
 	else
+#if 1
+		res = euckr2utf8(source, target, size-1);
+#else
 		res = charset_iso8859_1_to_utf8(target, source, size-1);
+#endif
 	for (i = size-1; i > 0 && (target[i] == ' ' || target[i] == '\0'); i--)
 	target[i] = '\0';
 	return res;
@@ -118,9 +142,11 @@ static int set_data(
 			case LYRICS:  target = ti->lyrics;  target_size = SIZE_LYRICS-1;  break;
 		}
 		switch (charset) {
+#if 0
 			case ISO_8859_1:
 				res = charset_iso8859_1_to_utf8(target, str, target_size);
 				break;
+#endif
 			case UTF_8:
 				if (charset_is_valid_utf8_string(str)) {
 					strncpy(target, str, target_size);
@@ -136,6 +162,9 @@ static int set_data(
 				res = charset_utf16_to_utf8(target, target_size, str, str_size, BOM);
 				break;
 			default:
+#if 1
+				res = euckr2utf8(str, target, target_size-1);
+#endif
 				break;
 		}
 	}
@@ -359,7 +388,11 @@ int id3_read_tag(const char *filename, TrackInfo *ti, const char *file_type)
 		if (charset_is_valid_utf8_string(filename_without_path)) {
 			strncpy(ti->title, filename_without_path, SIZE_TITLE-1);
 		} else {
+#if 1
+			if (!euckr2utf8(filename_without_path, ti->title, SIZE_TITLE-1)) {
+#else
 			if (!charset_iso8859_1_to_utf8(ti->title, filename_without_path, SIZE_TITLE-1)) {
+#endif
 				wdprintf(V_WARNING, "id3", "ERROR: Failed to convert filename text to UTF-8.\n");
 			}
 		}

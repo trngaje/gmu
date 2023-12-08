@@ -22,6 +22,11 @@
 #include "charset.h"
 #include "consts.h"
 
+#if 1 /* for hangul */
+#include <iconv.h>
+ 
+int euckr2utf8(char *source, char *dest, int dest_size);
+#endif
 int m3u_open_file(M3u *m3u, const char *filename)
 {
 	int    result = 0;
@@ -107,7 +112,12 @@ int m3u_read_next_item(M3u *m3u)
 				} else {
 					int r;
 					wdprintf(V_DEBUG, "m3u", "Invalid UTF-8 string found! Trying to interpret as ISO-8859-1...\n");
+#if 1
+					r = euckr2utf8(tmp_filename, m3u->current_item_title, 255);
+#else
 					r = charset_iso8859_1_to_utf8(m3u->current_item_title, tmp_filename, 255);
+#endif
+
 					wdprintf(V_DEBUG, "m3u", "RES = %d\n", r);
 				}
 
@@ -138,7 +148,11 @@ int m3u_read_next_item(M3u *m3u)
 			if (charset_is_valid_utf8_string(m3u->current_item_filename))
 				strncpy(m3u->current_item_title, m3u->current_item_filename, 255);
 			else
+#if 1 /* for hangul */
+				euckr2utf8(m3u->current_item_filename, m3u->current_item_title, 255);
+#else
 				charset_iso8859_1_to_utf8(m3u->current_item_title, m3u->current_item_filename, 255);
+#endif
 		}
 	}
 
